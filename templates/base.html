@@ -1,159 +1,23 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
 
-    <title>Login Page</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-    />
-    <link rel="stylesheet" href="..\static\deps\css\page_style.css" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{% static 'deps/css/page_style.css' %}" />
   </head>
 
   <body class="d-flex flex-column vh-100">
-    <header>
-      <nav
-        class="navbar navbar-expand-lg navbar-dark bg-dark d-flex align-items-center justify-content-center"
-        style="height: 55px"
-      >
-        <a class="navbar-brand" href="#"
-          ><img src="..." alt="logo" width="30" height="2"
-        /></a>
-        <div class="navbar-expand" id="navbarNavAltMarkup">
-          <div class="navbar-nav ml-auto mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contact Us</a>
-            </li>
-          </div>
-        </div>
-      </nav>
-    </header>
+    {% block header %}
+    {% endblock %}
 
-    <main
-      class="container-lg d-flex"
-      style="height: calc(100vh - 110px); overflow: hidden"
-    >
-      <div class="container my-auto">
-        <div class="row justify-content-center">
-          <div class="col-12 col-lg-6 col-md-8 col-xl-5">
-            <div class="card">
-              <div class="card-body">
-                <form>
-                  <div class="form-group mb-4">
-                    <label for="username">Username</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="username"
-                      placeholder="Enter username"
-                      required
-                    />
-                  </div>
+    {% block content %}
+    {% endblock %}
 
-                  <div class="form-group row mb-4">
-                    <label for="age" class="col-3 col-form-label">Age:</label>
-                    <div class="col-3">
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="age"
-                        min="13"
-                        max="110"
-                        value="18"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div class="form-group row mb-4" required>
-                    <label for="gender" class="col-form-label col-4"
-                      >Gender:</label
-                    >
-                    <div class="col-7">
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="male"
-                          value="male"
-                          required
-                        />
-                        <label class="form-check-label" for="male">Male</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="female"
-                          value="female"
-                          required
-                        />
-                        <label class="form-check-label" for="female"
-                          >Female</label
-                        >
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group row mb-4">
-                    <label for="gender" class="col-form-label col-4"
-                      >Language:</label
-                    >
-                    <div class="col-7">
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="language"
-                          id="rus"
-                          value="rus"
-                          required
-                        />
-                        <label class="form-check-label" for="rus"
-                          >Russian</label
-                        >
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="language"
-                          id="eng"
-                          value="eng"
-                          required
-                        />
-                        <label class="form-check-label" for="eng"
-                          >English</label
-                        >
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="container d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                      Log In
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <footer
-      class="footer bg-dark text-white text-center d-flex align-items-center justify-content-center"
-      style="height: 55px"
-    >
-      Some words about the site. © 2023
-    </footer>
+    <footer class="footer bg-dark text-white text-center d-flex align-items-center justify-content-center" style="height: 55px">Some words about the site. © 2023</footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>

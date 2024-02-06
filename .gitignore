@@ -3,5 +3,6 @@ __pycache__/
 .vscode
 .idea
 
+simple_chat/settings.py
 db.sqlite3
 media/
