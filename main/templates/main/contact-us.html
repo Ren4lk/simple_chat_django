@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}
+  {% if user.is_authenticated %}
+    {% include 'chat/header.html' %}
+  {% else %}
+    {% include 'main/header.html' %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
+    <div class="container my-auto col-12 col-xl-6 col-lg-6 col-md-8">
+      <h1 class="mb-3">Contact Us</h1>
+      <form>
+        <div class="form-group">
+          <label for="name">Your name</label>
+          <input type="text" class="form-control" id="name" placeholder="Write your name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="Write your email" />
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea class="form-control" id="message" rows="3" placeholder="Type here"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+  </main>
+{% endblock %}

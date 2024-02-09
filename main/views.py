@@ -17,3 +17,10 @@ def about(request):
         "text_on_page": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, sit!",
     }
     return render(request, "main/about.html", context)
+
+
+def contact_us(request):
+    context = {
+        "title": "Contacts",
+    }
+    return render(request, "main/contact-us.html", context)

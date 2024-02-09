@@ -2,26 +2,16 @@
 {% load static %}
 
 {% block header %}
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark d-flex align-items-center justify-content-center" style="height: 55px">
-      <a class="navbar-brand" href="#"><img src="..." alt="logo" width="30" height="2" /></a>
-      <div class="navbar-expand" id="navbarNavAltMarkup">
-        <div class="navbar-nav ml-auto mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact Us</a>
-          </li>
-        </div>
-      </div>
-    </nav>
-  </header>
+  {% if user.is_authenticated %}
+    {% include 'chat/header.html' %}
+  {% else %}
+    {% include 'main/header.html' %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
   <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
-    <div class="container my-auto">
+    <div class="container my-auto col-12 col-xl-6 col-lg-6 col-md-8">
       <h1 class="text-center">{{ title_of_text }}</h1>
       <p>{{ text_on_page }}</p>
     </div>
