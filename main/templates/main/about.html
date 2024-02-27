@@ -2,11 +2,8 @@
 {% load static %}
 
 {% block header %}
-  {% if user.is_authenticated %}
-    {% include 'chat/header.html' %}
-  {% else %}
     {% include 'main/header.html' %}
-  {% endif %}
+ 
 {% endblock %}
 
 {% block content %}

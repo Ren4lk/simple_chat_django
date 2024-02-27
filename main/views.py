@@ -1,4 +1,10 @@
-from django.shortcuts import render
+from email import message
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from main.forms import ContactForm
+from main.models import ContactMessage
 
 # Create your views here.
 
@@ -20,7 +26,20 @@ def about(request):
 
 
 def contact_us(request):
+    if request.method == "POST":
+        form = ContactForm(data=request.POST)
+        if form.is_valid():
+            contact_message = ContactMessage(**form.cleaned_data)
+            contact_message.save()
+            # form.save()
+            # form = ContactForm()
+            return HttpResponseRedirect(reverse("main:contact-us"))
+
+    else:
+        form = ContactForm()
+
     context = {
         "title": "Contacts",
+        'form' : form
     }
     return render(request, "main/contact-us.html", context)

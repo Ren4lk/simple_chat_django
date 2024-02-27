@@ -5,21 +5,35 @@
   <head>
     <meta charset="UTF-8" />
 
-    <title>{{ title }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{% static 'deps/css/page_style.css' %}" />
+
+    <link rel="icon" href="{% static 'deps/favicon/favicon.ico' %}" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'deps/favicon/apple-touch-icon.png' %}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'deps/favicon/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'deps/favicon/favicon-16x16.png' %}" />
+    <link rel="manifest" href="" />
+    <title>{{ title }}</title>
   </head>
 
   <body class="d-flex flex-column vh-100">
     {% block header %}
+
     {% endblock %}
 
     {% block content %}
+
     {% endblock %}
 
     <footer class="footer bg-dark text-white text-center d-flex align-items-center justify-content-center" style="height: 55px">Some words about the site. © 2023</footer>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    {% comment %} <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> {% endcomment %}
+    <!-- Подключение jQuery через Google CDN -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <script src="{% static 'deps/js/chat.js' %}"></script>
+
   </body>
 </html>
