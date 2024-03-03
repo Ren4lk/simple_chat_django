@@ -14,13 +14,11 @@ class User(AbstractUser):
         ("ru", "Russian"),
     ]
 
-    ip = models.GenericIPAddressField(blank=True, null=True)
-
-    session_key = models.CharField(max_length=40, blank=True, null=True)
-
-    gender = models.CharField(max_length=10, choices=GENDERS, blank=True, null=True)
-
-    language = models.CharField(max_length=10, choices=LANGUAGES, blank=True, null=True)
+    ip = models.GenericIPAddressField(editable=False)
+    session_key = models.CharField(max_length=40, editable=False)
+    is_online = models.BooleanField(default=False)
+    gender = models.CharField(max_length=10, choices=GENDERS, default="m")
+    language = models.CharField(max_length=10, choices=LANGUAGES, default="ru")
 
     class Meta:
         db_table = "users"
@@ -29,16 +27,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
-class OnlineUser(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    session_key = models.CharField(max_length=40)
-    ip = models.GenericIPAddressField(blank=True, null=True)
-
-    class Meta:
-        db_table = "online_users"
-        verbose_name = "Online user"
-        verbose_name_plural = "Online users"
-
-    def __str__(self):
-        return self.user.username

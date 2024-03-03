@@ -1,5 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Poppins&display=swap");
 
 body {
-    font-family: "Poppins", serif;
+  font-family: "Poppins", serif;
+}
+
+.messages {
+  /* Стилизация сообщений */
+  transition: opacity 0.5s linear; /* Плавное исчезновение */
 }

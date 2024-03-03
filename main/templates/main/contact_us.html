@@ -9,7 +9,7 @@
   <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
     <div class="container my-auto col-12 col-xl-6 col-lg-6 col-md-8">
       <h1 class="mb-3">Contact Us</h1>
-      <form action="{% url 'main:contact-us' %}" method="post">
+      <form action="{% url 'main:contact_us' %}" method="post">
         {% csrf_token %}
         <div>
           <div class="form-group">

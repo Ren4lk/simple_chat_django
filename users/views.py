@@ -1,38 +1,42 @@
+from typing import cast
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth, messages
-from django.db.models import Prefetch
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.db import transaction
 
 from users.forms import UserLoginForm, UserRegistrationForm
-from django.shortcuts import render
+from users.models import User
+from users.utils import save_user_tech_data
 
-# Create your views here.
-from django.http import HttpRequest, HttpResponse
-
-from users.models import OnlineUser
 
 
 def login(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("chat:index"))
+
+    if not request.session.session_key:
+        request.session.create()
+
     if request.method == "POST":
         form = UserLoginForm(data=request.POST)
+
         if form.is_valid():
-            username = request.POST["username"]
-            password = request.POST["password"]
-            user = auth.authenticate(username=username, password=password)
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = cast(User, auth.authenticate(username=username, password=password))
 
             if user:
                 auth.login(request, user)
-
-                OnlineUser.objects.create(user=user, session_key=request.session.session_key, ip=request.META["REMOTE_ADDR"])
-                
+                save_user_tech_data(request, user)
                 messages.success(request, f"{username} logged in!")
-
                 return HttpResponseRedirect(reverse("chat:index"))
+            else:
+                messages.error(request, "Invalid username or password!")
+        else:
+            messages.error(
+                request, "An error with the form has occurred, check your input!"
+            )
     else:
         form = UserLoginForm()
 
@@ -40,26 +44,29 @@ def login(request: HttpRequest) -> HttpResponse:
         "title": "Login",
         "form": form,
     }
-
     return render(request=request, template_name="users/login.html", context=context)
 
 
 def registration(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("chat:index"))
+
+    if not request.session.session_key:
+        request.session.create()
+
     if request.method == "POST":
         form = UserRegistrationForm(data=request.POST)
+
         if form.is_valid():
-            form.save()
-
-            user = form.instance
+            user = cast(User, form.save(commit=False))
+            save_user_tech_data(request, user)
             auth.login(request, user)
-
-            OnlineUser.objects.create(user=user, session_key=request.session.session_key, ip=request.META["REMOTE_ADDR"])
-
-            messages.success(request, f"{user.username} registered!")
-
+            messages.success(request, f"{user.username} registered and logged in!")
             return HttpResponseRedirect(reverse("chat:index"))
+        else:
+            messages.error(
+                request, "An error with the form has occurred, check your input!"
+            )
     else:
         form = UserRegistrationForm()
 
@@ -77,7 +84,9 @@ def registration(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def logout(request: HttpRequest) -> HttpResponse:
-    OnlineUser.objects.filter(user=request.user).delete()
+    user = cast(User, request.user)
+    user.is_online = False
+    user.save()
     auth.logout(request)
-    messages.success(request, "You are logged out!")
+    messages.success(request, f"{user.username} logged out!")
     return redirect(reverse("users:login"))

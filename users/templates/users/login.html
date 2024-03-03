@@ -9,51 +9,26 @@
   <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
     <div class="container my-auto">
       <div class="row justify-content-center">
+        {% if form.non_field_errors %}
+        <div id="non_field_errors" class="alert alert-danger alert-dismissible fade show">{{ form.non_field_errors }}</div>
+        {% endif %}
         <div class="col-12 col-lg-6 col-md-8 col-xl-5">
           <div class="card">
             <div class="card-body">
               <form action="{% url 'users:login' %}" method="post">
                 {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                  <p>{{ form.non_field_errors }}</p>
-                {% endif %}
-
                 <div>
                   <div class="form-group mb-1 text-right">
                     <a href="{% url 'users:registration' %}">Have no account?</a>
                   </div>
-
                   <div class="form-group mb-4">
                     <label for="id_username">Username</label>
                     <input type="text" class="form-control" value="{% if form.username.value %}{{ form.username.value }}{% endif %}" name="username" id="id_username" placeholder="Enter username" required />
-                    {% if form.username.errors %}
-                      <div class="alert alert-danger alert-dismissible fade show">{{ form.username.errors }}</div>
-                    {% endif %}
                   </div>
-
                   <div class="form-group mb-4">
                     <label for="id_password">Password</label>
                     <input type="password" class="form-control" name="password" id="id_password" placeholder="Enter password" required />
-                    {% if form.username.errors %}
-                      <div class="alert alert-danger alert-dismissible fade show">{{ form.username.errors }}</div>
-                    {% endif %}
                   </div>
-
-                  {% comment %} <div class="form-group row mb-4">
-                    <label for="id_language" class="col-form-label col-5">Language:</label>
-                    <div class="col-7">
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="language" id="id_ru" value="ru" required />
-                        <label class="form-check-label" for="ru">Russian</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="language" id="id_en" value="en" required />
-                        <label class="form-check-label" for="en">English</label>
-                      </div>
-                    </div>
-                  </div> {% endcomment %}
-
                   <div class="container d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary btn-lg">Log in</button>
                   </div>
