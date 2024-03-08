@@ -4,10 +4,11 @@ from django.contrib import auth, messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
+import redis
 
 from users.forms import UserLoginForm, UserRegistrationForm
 from users.models import User
-from users.utils import save_user_tech_data
+from users.utils import remove_user_online_data, save_user_online_data
 
 
 
@@ -28,7 +29,7 @@ def login(request: HttpRequest) -> HttpResponse:
 
             if user:
                 auth.login(request, user)
-                save_user_tech_data(request, user)
+                save_user_online_data(request, user)
                 messages.success(request, f"{username} logged in!")
                 return HttpResponseRedirect(reverse("chat:index"))
             else:
@@ -59,7 +60,7 @@ def registration(request: HttpRequest) -> HttpResponse:
 
         if form.is_valid():
             user = cast(User, form.save(commit=False))
-            save_user_tech_data(request, user)
+            save_user_online_data(request, user)
             auth.login(request, user)
             messages.success(request, f"{user.username} registered and logged in!")
             return HttpResponseRedirect(reverse("chat:index"))
@@ -85,8 +86,11 @@ def registration(request: HttpRequest) -> HttpResponse:
 @login_required
 def logout(request: HttpRequest) -> HttpResponse:
     user = cast(User, request.user)
-    user.is_online = False
-    user.save()
+
+    remove_user_online_data(user)
+    # user.is_online = False
+    # user.save()
+
     auth.logout(request)
     messages.success(request, f"{user.username} logged out!")
     return redirect(reverse("users:login"))

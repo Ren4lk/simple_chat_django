@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block content %}
+  {{ target_user|json_script:'target-user' }}
+  {{ current_user|json_script:'current-user' }}
   <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
     <!-- Left sidebar with contacts list -->
 
@@ -17,16 +19,17 @@
           <button class="btn btn-outline-secondary" type="button" id="search-button"><i class="fas fa-search"></i></button>
         </div>
       </div>
+
       <!-- Contacts list -->
       <div id="contacts-list" class="list-group" style="overflow-y: auto; height: calc(100% - 104px)">
-        {% csrf_token %}
+        {% comment %} {% csrf_token %} {% endcomment %}
         {% comment %} {% for contact in contacts %}
-        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-          <div class="d-flex flex-column">
-            <h6 class="mb-1">{{ contact.username }}</h6>
-          </div>
-          <span class="badge badge-primary badge-pill ml-auto">2</span>
-        </a>
+          <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+            <div class="d-flex flex-column">
+              <h6 class="mb-1">{{ contact.username }}</h6>
+            </div>
+            <span class="badge badge-primary badge-pill ml-auto">2</span>
+          </a>
         {% endfor %} {% endcomment %}
 
         {% comment %} <a href="#" class="list-group-item list-group-item-action d-flex align-items-center active">
@@ -71,21 +74,19 @@
     <div class="col-12 col-lg-9 p-0">
       <!-- Chat header -->
       <div class="d-flex align-items-center bg-white border-bottom p-2">
-        <h5 class="mb-1 mt-1 ml-2">Anna</h5>
+        <h5 id="chat-header-name" class="mb-1 mt-1 ml-2">Here will be name of chat</h5>
       </div>
 
       <!-- Chat messages -->
       <div class="bg-light" style="overflow-y: auto; height: calc(100% - 104px)">
-        <div class="d-flex flex-column p-3">
-          
-          {% for message in messages %}
-          <div class="d-flex align-items-end mt-2 chatroom">
-            <small class="text-muted mr-2">12:34</small>
-            <div class="bg-white rounded p-2">
-              <p class="mb-0">Lorem ipsum dolor siatur nesciunt perspiciatis iure ita inventore, vero aut animi itaque deleniti ad totam.</p>
-            </div>
-          </div>
-          {% endfor %}
+        <div id="chat-messages" class="d-flex flex-column p-3">
+
+            {% comment %} <div class="d-flex align-items-end mt-2 chatroom">
+              <small class="text-muted mr-2">12:34</small>
+              <div class="bg-white rounded p-2">
+                <p class="mb-0">Lorem ipsum dolor siatur nesciunt perspiciatis iure ita inventore, vero aut animi itaque deleniti ad totam.</p>
+              </div>
+            </div> {% endcomment %}
 
           {% comment %} <div class="d-flex align-items-end mt-2">
             <small class="text-muted mr-2">12:34</small>
@@ -115,13 +116,11 @@
       </div>
       <!-- Chat input -->
       <div class="input-group m-2">
-        <input type="text" class="form-control" placeholder="Write your message" />
-        <div class="input-group-append">
+        <input id="chat-message-input" type="text" class="form-control" placeholder="Write your message" />
+        <div id="chat-message-submit" class="input-group-append">
           <button class="btn btn-primary" type="button">send</button>
         </div>
       </div>
     </div>
   </main>
-  
 {% endblock %}
-
