@@ -19,7 +19,7 @@ app_name = "chat"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("<str:target_user>/", views.index, name="index"),
+    # path("<str:target_user>/", views.index, name="index"),
     # path("<str:interlocutor_username>/", views.index, name="index"),
     # path("<str:room_name>/", views.room, name="room"),
 ]

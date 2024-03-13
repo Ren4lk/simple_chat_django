@@ -34,7 +34,7 @@ from django.shortcuts import render
 from users.models import User
 
 
-def index(request, target_user=None):
+def index(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("users:login"))
 
@@ -44,7 +44,12 @@ def index(request, target_user=None):
     return render(
         request,
         "chat/index.html",
-        {"target_user": target_user, "current_user": request.user.username},
+        {
+            "current_user": {
+                "username": request.user.username,
+                "gender": request.user.gender,
+            }
+        },
     )
 
     # return render(request, "chat/index_test.html")
