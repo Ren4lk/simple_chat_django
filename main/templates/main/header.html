@@ -20,6 +20,18 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'main:contact_us' %}">Contact Us</a>
         </li>
+        {% if user.is_admin or user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:index' %}">Admin panel</a>
+          </li>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'users:edit' %}">Edit</a>
+          </li>
+        {% endif %}
+
         {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'users:logout' %}">Logout</a>

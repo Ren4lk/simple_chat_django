@@ -1,7 +1,5 @@
-from email import message
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 from main.forms import ContactForm
 from main.models import ContactUsMessage
@@ -20,7 +18,6 @@ def contact_us(request):
     if request.method == "POST":
         form = ContactForm(data=request.POST)
         if form.is_valid():
-
             contact_message = ContactUsMessage(**form.cleaned_data)
 
             if not request.session.session_key:
@@ -28,8 +25,8 @@ def contact_us(request):
             contact_message.session_key = request.session.session_key
 
             contact_message.save()
-            return HttpResponseRedirect(reverse("main:contact_us"))
-
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect("main:contact_us")
     else:
         form = ContactForm()
 

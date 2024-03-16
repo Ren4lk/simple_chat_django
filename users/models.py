@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-# Create your models here.
 class User(AbstractUser):
     GENDERS = [
         ("m", "Male"),
@@ -16,7 +15,7 @@ class User(AbstractUser):
 
     ip = models.GenericIPAddressField(editable=False)
     session_key = models.CharField(max_length=40, editable=False)
-    is_online = models.BooleanField(default=False)
+    age = models.PositiveSmallIntegerField()
     gender = models.CharField(max_length=10, choices=GENDERS, default="m")
     language = models.CharField(max_length=10, choices=LANGUAGES, default="ru")
 

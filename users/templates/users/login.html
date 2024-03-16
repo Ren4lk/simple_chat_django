@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block content %}
-  <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: hidden">
+  <main class="container-lg d-flex" style="height: calc(100vh - 110px); overflow: auto">
     <div class="container my-auto">
       <div class="row justify-content-center">
         {% if form.non_field_errors %}
-        <div id="non_field_errors" class="alert alert-danger alert-dismissible fade show">{{ form.non_field_errors }}</div>
+          <div id="non_field_errors" class="alert alert-danger alert-dismissible fade show">{{ form.non_field_errors }}</div>
         {% endif %}
         <div class="col-12 col-lg-6 col-md-8 col-xl-5">
           <div class="card">

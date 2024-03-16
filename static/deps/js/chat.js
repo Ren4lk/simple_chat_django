@@ -1,123 +1,98 @@
-var users = [];
-var selected_username;
-formatted_messages = {};
+let users = [];
+let selectedUsername;
+let formattedMessages = {};
 
-var current_user = JSON.parse(
+const currentUser = JSON.parse(
   document.getElementById("current-user").textContent
 );
 
-$("#modal-users-window").on("shown.bs.modal", function () {
-  $("#all").prop("checked", true);
-});
-var genderFilter = "all";
-var searchQuery = "";
-function drawInMessage(message, time) {
-  var date = new Date(time);
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var formattedTime =
-    (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes;
-  $("#chat-messages").append(
-    '<div class="d-flex align-items-end mt-2 chatroom">' +
-      '<small class="text-muted mr-2">' +
-      formattedTime +
-      "</small>" +
-      '<div class="bg-white rounded p-2">' +
-      '<p class="mb-0">' +
-      message +
-      "</p>" +
-      "</div>" +
-      "</div>"
-  );
+let genderFilter = "all";
+let searchQuery = "";
+
+function drawMessage(message, time, isOutgoing) {
+  const date = new Date(time);
+  const formattedTime = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const messageHTML = `
+    <div class="d-flex align-items-end mt-2 ${
+      isOutgoing ? "ml-auto" : "chatroom"
+    }">
+      <small class="text-muted mr-2">${formattedTime}</small>
+      <div class="bg-white rounded p-2">
+        <p class="mb-0">${message}</p>
+      </div>
+    </div>`;
+
+  const chatMessages = $("#chat-messages");
+  chatMessages.append(messageHTML);
+
+  const chatContainer = chatMessages.parent();
+  chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
 }
 
-function drawOutMessage(message, time) {
-  var date = new Date(time);
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var formattedTime =
-    (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes;
-  $("#chat-messages").append(
-    '<div class="d-flex align-items-end mt-2 ml-auto">' +
-      '<small class="text-muted mr-2">' +
-      formattedTime +
-      "</small>" +
-      '<div class="bg-white rounded p-2">' +
-      '<p class="mb-0">' +
-      message +
-      "</p>" +
-      "</div>" +
-      "</div>"
-  );
+function drawIncomingMessage(message, time) {
+  drawMessage(message, time, false);
 }
 
-function drawMessages(messages) {
+function drawOutgoingMessage(message, time) {
+  drawMessage(message, time, true);
+}
+
+function drawAllMessages(messages) {
   $("#chat-messages").empty();
-  for (var i = 0; i < messages.length; i++) {
-    var message = messages[i];
-    if (message.sender === current_user.username) {
-      drawOutMessage(message.text, message.created_at);
+  messages.forEach((message) => {
+    if (message.sender === currentUser.username) {
+      drawOutgoingMessage(message.text, message.created_at);
+    } else {
+      drawIncomingMessage(message.text, message.created_at);
     }
-    if (message.receiver === current_user.username) {
-      drawInMessage(message.text, message.created_at);
-    }
-  }
+  });
 }
+
 function parseMessages(messages) {
-  var messagesByRoom = {};
-  for (var i = 0; i < messages.length; i++) {
-    var message = messages[i];
-    var room =
-      message.sender === current_user.username
+  return messages.reduce((messagesByRoom, message) => {
+    const room =
+      message.sender === currentUser.username
         ? message.receiver
         : message.sender;
-    if (messagesByRoom[room]) {
-      messagesByRoom[room].push(message);
-    } else {
-      messagesByRoom[room] = [message];
+    if (!messagesByRoom[room]) {
+      messagesByRoom[room] = [];
     }
-  }
-  for (var room in messagesByRoom) {
-    messagesByRoom[room].sort(function (a, b) {
-      return new Date(a.created_at) - new Date(b.created_at);
-    });
-  }
-  return messagesByRoom;
+    messagesByRoom[room].push(message);
+    messagesByRoom[room].sort(
+      (a, b) => new Date(a.created_at) - new Date(b.created_at)
+    );
+    return messagesByRoom;
+  }, {});
 }
+
 function openChat(username) {
   if (username) {
     $(`#id-${username}`).addClass("active");
     $("#chat-message-input").focus();
     $("#chat-header-name").text(username);
-    drawMessages(formatted_messages[username]);
+    drawAllMessages(formattedMessages[username]);
   }
 }
 
 function closeChat() {
-  $(`#id-${selected_username}`).removeClass("active");
+  $(`#id-${selectedUsername}`).removeClass("active");
   $("#chat-messages").empty();
-  selected_username = null;
+  selectedUsername = null;
   $("#chat-header-name").text("Here will be name of chat");
 }
 
-$("#contacts-list").on("click", "a", function (e) {
-  if (selected_username) {
+$("#contacts-list, #modal-contacts-list").on("click", "a", function (e) {
+  if (selectedUsername) {
     closeChat();
   }
 
-  selected_username = e.currentTarget.id.split("-")[1];
+  selectedUsername = e.currentTarget.id.split("-").pop();
 
-  openChat(selected_username);
-});
-
-$("#modal-contacts-list").on("click", "a", function (e) {
-  if (selected_username) {
-    closeChat();
-  }
-
-  selected_username = e.currentTarget.id.split("-")[2];
-
-  openChat(selected_username);
+  openChat(selectedUsername);
   $("#modal-users-window").modal("hide");
 });
 
@@ -128,21 +103,18 @@ document.addEventListener("keydown", function (event) {
 });
 
 function addUser(user) {
-  if (user.username === current_user.username) {
-    return;
-  }
-  if (!users.find((u) => u.username === user.username)) {
+  if (
+    user.username !== currentUser.username &&
+    !users.some((u) => u.username === user.username)
+  ) {
     users.push(user);
-
     displayUser(user);
   }
 }
 
 function removeUser(user) {
-  if (users.find((u) => u.username === user.username)) {
-    users = users.filter((u) => u.username !== user.username);
-    unDisplayUser(user);
-  }
+  users = users.filter((u) => u.username !== user.username);
+  unDisplayUser(user);
 }
 
 function displayUser(user) {
@@ -151,26 +123,19 @@ function displayUser(user) {
     user.username.toLowerCase().includes(searchQuery)
   ) {
     if (!$(`#id-${user.username}`).length) {
-      $("#contacts-list").append(
-        `<a id="id-${user.username}" class="list-group-item list-group-item-action d-flex align-items-center">` +
-          '<div class="d-flex flex-column">' +
-          '<h6 class="mb-1 unselectable">' +
-          user.username +
-          "</h6>" +
-          "</div>" +
-          '<span class="badge badge-primary badge-pill ml-auto">2</span>' +
-          "</a>"
-      );
-      $("#modal-contacts-list").append(
-        `<a id="id-modal-${user.username}" class="list-group-item list-group-item-action d-flex align-items-center">` +
-          '<div class="d-flex flex-column">' +
-          '<h6 class="mb-1">' +
-          user.username +
-          "</h6>" +
-          "</div>" +
-          '<span class="badge badge-primary badge-pill ml-auto">2</span>' +
-          "</a>"
-      );
+      const userHTML = `
+        <a id="id-${
+          user.username
+        }" class="list-group-item list-group-item-action d-flex align-items-center ${
+        user.username === selectedUsername ? "active" : ""
+      }">
+          <div class="d-flex flex-column">
+            <h6 class="mb-1">${user.username}</h6>
+          </div>
+          <span class="badge badge-primary badge-pill ml-auto">${user.language.toUpperCase()}</span>
+        </a>`;
+      $("#contacts-list").append(userHTML);
+      $("#modal-contacts-list").append(userHTML.replace("id-", "id-modal-"));
     }
   }
 }
@@ -185,16 +150,9 @@ $("input[name='filter']").on("change", function () {
   updateDisplayedUsers();
 });
 
-$("#user-search").on("input", function () {
+$("#user-search, #modal-search-input").on("input", function () {
   searchQuery = $(this).val().toLowerCase();
   updateDisplayedUsers();
-});
-
-$("#modal-search-input").on("input", function () {
-  if (document.querySelector("#modal-search-input").value.length === 0) {
-    searchQuery = "";
-    updateDisplayedUsers();
-  }
 });
 
 document.querySelector("#modal-search-input").onkeyup = function (e) {
@@ -226,17 +184,35 @@ function updateDisplayedUsers() {
 
 function connectSocket() {
   const chatSocketURL = "ws://" + window.location.host + "/ws/chat/";
-
   const chatSocket = new WebSocket(chatSocketURL);
+  PING_INTERVAL = 5000;
+
+  chatSocket.onopen = function (e) {
+    console.log("Successfully connected to the WebSocket.");
+  };
+
+  chatSocket.onclose = function (e) {
+    console.log(
+      "WebSocket connection closed unexpectedly. Trying to reconnect in 2s..."
+    );
+    setTimeout(function () {
+      console.log("Reconnecting...");
+      connectSocket();
+    }, 2000);
+  };
 
   chatSocket.onmessage = function (event) {
-    let data = JSON.parse(event.data);
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (err) {
+      console.error("Unexpected error when parsing WebSocket message:", err);
+      return;
+    }
     console.log(data);
     switch (data.type) {
       case "users_list":
-        data.users.forEach((user) => {
-          addUser(user);
-        });
+        data.users.forEach(addUser);
         break;
       case "user_joined":
         addUser(data.user);
@@ -244,26 +220,25 @@ function connectSocket() {
       case "user_left":
         removeUser(data.user);
         break;
-
       case "messages_list":
-        formatted_messages = parseMessages(data.messages);
+        formattedMessages = parseMessages(data.messages);
         break;
       case "chat_message":
-        if (!formatted_messages[data.message.sender]) {
-          formatted_messages[data.message.sender] = [];
+        if (!formattedMessages[data.message.sender]) {
+          formattedMessages[data.message.sender] = [];
         }
-        formatted_messages[data.message.sender].push(data.message);
-        if (data.message.sender === selected_username) {
-          drawInMessage(data.message.text, data.message.created_at);
+        formattedMessages[data.message.sender].push(data.message);
+        if (data.message.sender === selectedUsername) {
+          drawIncomingMessage(data.message.text, data.message.created_at);
         }
         break;
       case "chat_message_delivered":
-        if (!formatted_messages[data.message.receiver]) {
-          formatted_messages[data.message.receiver] = [];
+        if (!formattedMessages[data.message.receiver]) {
+          formattedMessages[data.message.receiver] = [];
         }
-        formatted_messages[data.message.receiver].push(data.message);
-        if (data.message.receiver === selected_username) {
-          drawOutMessage(data.message.text, data.message.created_at);
+        formattedMessages[data.message.receiver].push(data.message);
+        if (data.message.receiver === selectedUsername) {
+          drawOutgoingMessage(data.message.text, data.message.created_at);
         }
         break;
       default:
@@ -271,9 +246,15 @@ function connectSocket() {
     }
   };
 
-  chatSocket.onclose = function (e) {
-    console.error("Chat socket closed unexpectedly");
+  chatSocket.onerror = function (err) {
+    console.log("WebSocket encountered an error: " + err.message);
+    console.log("Closing the socket.");
+    chatSocket.close();
   };
+
+  setInterval(() => {
+    chatSocket.send(JSON.stringify({ "type": "ping" }));
+  }, PING_INTERVAL);
 
   document.querySelector("#chat-message-input").onkeyup = function (e) {
     if (e.key === "Enter") {
@@ -283,14 +264,19 @@ function connectSocket() {
 
   document.querySelector("#chat-message-submit").onclick = function (e) {
     const messageInputDom = document.querySelector("#chat-message-input");
-    const message = messageInputDom.value;
-    chatSocket.send(
-      JSON.stringify({
-        "message": message,
-        "target_user": selected_username,
-      })
-    );
-    messageInputDom.value = "";
+    const message = messageInputDom.value.trim();
+
+    if (message) {
+      chatSocket.send(
+        JSON.stringify({
+          "message": message,
+          "target_user": selectedUsername,
+        })
+      );
+      messageInputDom.value = "";
+    } else {
+      console.log("Input message cannot be empty.");
+    }
   };
 }
 

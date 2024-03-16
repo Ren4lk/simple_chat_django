@@ -1,4 +1,6 @@
+import asyncio
 import json
+import time
 from typing import cast
 
 from channels.db import database_sync_to_async
@@ -14,9 +16,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     ONLINE_USERS = "online_users"
     USER_DATA = "user_data:{}"
     INBOX = "inbox_{}"
+    PING_TIMEOUT = 35
+    PING_CHECK_INTERVAL = 7
 
     async def connect(self):
         self.user = cast(User, self.scope["user"])
+        self.last_ping = time.time()
 
         if not self.user.is_authenticated:
             await self.close()
@@ -51,6 +56,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send_messages_list(messages)
 
+        asyncio.create_task(self.check_ping())
+
     async def disconnect(self, close_code):
         await self.remove_user_from_group(self.user_inbox)
 
@@ -63,8 +70,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         if text_data is not None:
             text_data_json = json.loads(text_data)
-            message = text_data_json["message"]
-            target_user = text_data_json["target_user"]
+            if text_data_json.get("type") == "ping":
+                self.last_ping = time.time()
+                return
+
+            message = text_data_json.get("message")
+            target_user = text_data_json.get("target_user")
+            if message is None or target_user is None:
+                print("Unexpected error: Message or target user is None")
+                return
 
             receiver = await self.get_user(target_user)
 
@@ -73,6 +87,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send_chat_message(saved_message, target_user)
 
             await self.send_chat_message_delivered(saved_message)
+
+    async def check_ping(self):
+        while True:
+            if time.time() - self.last_ping > self.PING_TIMEOUT:
+                await self.close()
+                return
+            await asyncio.sleep(self.PING_CHECK_INTERVAL)
 
     async def get_user(self, username):
         try:
@@ -114,6 +135,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             await database_sync_to_async(self.r.hset)(
                 self.USER_DATA.format(self.user.username), "gender", self.user.gender
+            )
+            await database_sync_to_async(self.r.hset)(
+                self.USER_DATA.format(self.user.username),
+                "language",
+                self.user.language,
             )
             print(f"User {self.user.username} logged in!")
         except redis.RedisError as e:
@@ -173,6 +199,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "user": {
                     "username": self.user.username,
                     "gender": self.user.gender,
+                    "language": self.user.language,
                 },
             },
         )
@@ -185,6 +212,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "user": {
                     "username": self.user.username,
                     "gender": self.user.gender,
+                    "language": self.user.language,
                 },
             },
         )

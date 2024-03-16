@@ -1,10 +1,6 @@
-from time import timezone
 from django.db import models
-from django.utils import timezone
 
 
-
-# Create your models here.
 class ContactUsMessage(models.Model):
     session_key = models.CharField(max_length=40)
     name = models.CharField(max_length=50)
@@ -18,4 +14,4 @@ class ContactUsMessage(models.Model):
         verbose_name_plural = "Contact us messages"
 
     def __str__(self):
-        return self.name
+        return f"Message from {self.name} at {self.created_at}"
