@@ -13,11 +13,13 @@ class User(AbstractUser):
         ("ru", "Russian"),
     ]
 
-    ip = models.GenericIPAddressField(editable=False)
-    session_key = models.CharField(max_length=40, editable=False)
-    age = models.PositiveSmallIntegerField()
-    gender = models.CharField(max_length=10, choices=GENDERS, default="m")
-    language = models.CharField(max_length=10, choices=LANGUAGES, default="ru")
+    ip = models.GenericIPAddressField(editable=False, null=True)
+    session_key = models.CharField(max_length=40, editable=False, null=True)
+    age = models.PositiveSmallIntegerField(null=True)
+    gender = models.CharField(max_length=10, choices=GENDERS, default="m", null=True)
+    language = models.CharField(
+        max_length=10, choices=LANGUAGES, default="ru", null=True
+    )
 
     class Meta:
         db_table = "users"

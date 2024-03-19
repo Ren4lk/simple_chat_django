@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth, messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 
 from users.forms import UserEditForm, UserLoginForm, UserRegistrationForm
 from users.models import User

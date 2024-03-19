@@ -42,5 +42,7 @@ def get_user_messages(user):
     """
     Get all messages related to a user (either sent or received).
     """
-    messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
+    messages = Message.objects.filter(Q(sender=user) | Q(receiver=user)).select_related(
+        "sender", "receiver"
+    )
     return [message.to_dict() for message in messages]

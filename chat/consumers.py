@@ -3,6 +3,7 @@ import json
 import time
 from typing import cast
 
+from django.conf import settings
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels_redis.core import RedisChannelLayer
@@ -16,8 +17,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     ONLINE_USERS = "online_users"
     USER_DATA = "user_data:{}"
     INBOX = "inbox_{}"
-    PING_TIMEOUT = 35
-    PING_CHECK_INTERVAL = 7
+    PING_TIMEOUT = 40
+    PING_CHECK_INTERVAL = 5
 
     async def connect(self):
         self.user = cast(User, self.scope["user"])
@@ -30,7 +31,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.online_group_name = "all"
         self.channel_layer = cast(RedisChannelLayer, self.channel_layer)
         try:
-            self.r = redis.Redis(host="localhost", port=6379)
+            self.redis_conn = redis.Redis(
+                host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
+            )
         except redis.RedisError as e:
             print(f"Redis connection error: {e}")
             await self.close()
@@ -89,11 +92,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send_chat_message_delivered(saved_message)
 
     async def check_ping(self):
-        while True:
-            if time.time() - self.last_ping > self.PING_TIMEOUT:
-                await self.close()
-                return
+        while self.last_ping - time.time() < self.PING_TIMEOUT:
             await asyncio.sleep(self.PING_CHECK_INTERVAL)
+        await self.close()
 
     async def get_user(self, username):
         try:
@@ -106,13 +107,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             online_usernames = [
                 username.decode("utf-8")
-                for username in await database_sync_to_async(self.r.smembers)(
+                for username in await database_sync_to_async(self.redis_conn.smembers)(
                     self.ONLINE_USERS
                 )
             ]
             users = []
             for username in online_usernames:
-                user_data = await database_sync_to_async(self.r.hgetall)(
+                user_data = await database_sync_to_async(self.redis_conn.hgetall)(
                     self.USER_DATA.format(username)
                 )
                 users.append(
@@ -125,35 +126,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def add_user_to_online_users(self):
         try:
-            await database_sync_to_async(self.r.sadd)(
+            await database_sync_to_async(self.redis_conn.sadd)(
                 self.ONLINE_USERS, self.user.username
             )
-            await database_sync_to_async(self.r.hset)(
+            await database_sync_to_async(self.redis_conn.hset)(
                 self.USER_DATA.format(self.user.username),
                 "username",
                 self.user.username,
             )
-            await database_sync_to_async(self.r.hset)(
+            await database_sync_to_async(self.redis_conn.hset)(
                 self.USER_DATA.format(self.user.username), "gender", self.user.gender
             )
-            await database_sync_to_async(self.r.hset)(
+            await database_sync_to_async(self.redis_conn.hset)(
                 self.USER_DATA.format(self.user.username),
                 "language",
                 self.user.language,
             )
-            print(f"User {self.user.username} logged in!")
+            print(f"User {self.user.username} has entered the chat!")
         except redis.RedisError as e:
             print(f"Redis error in add_user_to_online_users: {e}")
 
     async def remove_user_from_online_users(self):
         try:
-            await database_sync_to_async(self.r.srem)(
+            await database_sync_to_async(self.redis_conn.srem)(
                 self.ONLINE_USERS, self.user.username
             )
-            await database_sync_to_async(self.r.delete)(
+            await database_sync_to_async(self.redis_conn.delete)(
                 self.USER_DATA.format(self.user.username)
             )
-            print(f"User {self.user.username} logged out!")
+            print(f"User {self.user.username} has left the chat!")
         except redis.RedisError as e:
             print(f"Redis error in remove_user_from_online_users: {e}")
 

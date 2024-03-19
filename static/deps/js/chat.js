@@ -9,6 +9,20 @@ const currentUser = JSON.parse(
 let genderFilter = "all";
 let searchQuery = "";
 
+$(document).ready(function () {
+  if (window.innerWidth < 768) {
+    $("#footer").remove();
+  }
+});
+
+$(document).ready(function () {
+  $("#modal-users-window").on("shown.bs.modal", function () {
+    $("input[name='filterModal'][value='" + genderFilter + "']").trigger(
+      "click"
+    );
+  });
+});
+
 function drawMessage(message, time, isOutgoing) {
   const date = new Date(time);
   const formattedTime = date.toLocaleTimeString("en-US", {
@@ -43,6 +57,9 @@ function drawOutgoingMessage(message, time) {
 
 function drawAllMessages(messages) {
   $("#chat-messages").empty();
+  if (!messages) {
+    return;
+  }
   messages.forEach((message) => {
     if (message.sender === currentUser.username) {
       drawOutgoingMessage(message.text, message.created_at);
@@ -72,7 +89,6 @@ function parseMessages(messages) {
 function openChat(username) {
   if (username) {
     $(`#id-${username}`).addClass("active");
-    $("#chat-message-input").focus();
     $("#chat-header-name").text(username);
     drawAllMessages(formattedMessages[username]);
   }
@@ -94,6 +110,13 @@ $("#contacts-list, #modal-contacts-list").on("click", "a", function (e) {
 
   openChat(selectedUsername);
   $("#modal-users-window").modal("hide");
+  if (window.innerWidth < 768) {
+    setTimeout(function () {
+      $("#chat-message-input").focus();
+    }, 350);
+  } else {
+    $("#chat-message-input").focus();
+  }
 });
 
 document.addEventListener("keydown", function (event) {
@@ -145,7 +168,7 @@ function unDisplayUser(user) {
   $(`#id-modal-${user.username}`).remove();
 }
 
-$("input[name='filter']").on("change", function () {
+$("input[name='filter'], input[name='filterModal']").on("change", function () {
   genderFilter = $(this).val();
   updateDisplayedUsers();
 });
@@ -185,7 +208,7 @@ function updateDisplayedUsers() {
 function connectSocket() {
   const chatSocketURL = "ws://" + window.location.host + "/ws/chat/";
   const chatSocket = new WebSocket(chatSocketURL);
-  PING_INTERVAL = 5000;
+  PING_INTERVAL = 7000;
 
   chatSocket.onopen = function (e) {
     console.log("Successfully connected to the WebSocket.");

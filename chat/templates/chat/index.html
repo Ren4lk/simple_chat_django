@@ -10,7 +10,7 @@
 
   <button type="button" class="d-lg-none btn btn-primary ml-auto p-2 w-25 mt-1 mr-3 mb-1" data-toggle="modal" data-target="#modal-users-window">Users</button>
   <div class="modal fade" id="modal-users-window">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Users</h5>
@@ -23,19 +23,19 @@
               <button id="modal-search-button" class="btn btn-outline-secondary" type="button" id="search-button"><i class="fas fa-search"></i></button>
             </div>
           </div>
-          <div id="modal-contacts-list" class="list-group" style="overflow-y: auto; height: calc(100% - 104px)"></div>
+          <div id="modal-contacts-list" class="list-group" style="overflow-y: auto; max-height: calc(100% - 104px)"></div>
           <div class="d-flex justify-content-around p-2">
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="filter" id="all" value="all" checked />
-              <label class="form-check-label" for="all">All</label>
+              <input class="form-check-input" type="radio" name="filterModal" id="modal-all" value="all" checked />
+              <label class="form-check-label" for="modal-all">All</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="filter" id="male" value="m" />
-              <label class="form-check-label" for="male">Male</label>
+              <input class="form-check-input" type="radio" name="filterModal" id="modal-male" value="m" />
+              <label class="form-check-label" for="modal-male">Male</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="filter" id="female" value="f" />
-              <label class="form-check-label" for="female">Female</label>
+              <input class="form-check-input" type="radio" name="filterModal" id="modal-female" value="f" />
+              <label class="form-check-label" for="modal-female">Female</label>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
       <div class="input-group m-2">
         <input id="chat-message-input" type="text" class="form-control" placeholder="Write your message" />
         <div id="chat-message-submit" class="input-group-append">
-          <button class="btn btn-primary" type="button">send</button>
+          <button class="btn btn-primary" type="button">Send</button>
         </div>
       </div>
     </div>

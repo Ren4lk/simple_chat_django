@@ -9,7 +9,7 @@ def about(request):
     context = {
         "title": "About",
         "title_of_text": "About us",
-        "text_on_page": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, sit!",
+        "text_on_page": "It's a simple chat app created with Django for educational purposes.",
     }
     return render(request, "main/about.html", context)
 
